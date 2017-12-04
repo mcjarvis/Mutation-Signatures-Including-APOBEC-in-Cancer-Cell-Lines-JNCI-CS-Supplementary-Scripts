@@ -1,0 +1,12 @@
+# From the 5-field mutation file (chr, pos, ref, alt, sample):
+
+# Execute all commands in a new directory that's one level below your perl and ref files, and contains your mutation file:
+
+# 1. Split file into each separate cell line, keeping the header
+awk  'NR==1 {h=$0; next} !seen[$5]++{ f="FILE_"FILENAME"_"$5".txt";print h > f } { print >> f; close(f)}' cosmic_mut.txt
+
+# 2. Run "count_trinuc_muts_v7.pl" script on every file
+for i in *.txt; do perl ../count_trinuc_muts_v7.pl pvcf ../hg38.fa $i; done
+
+# 3. Concatenate files together, and check that the file has the same number of mutations as the initial mutation file
+head -1 *BA*count.txt > all.txt; tail -n +2 -q *count.txt >> all.txt
